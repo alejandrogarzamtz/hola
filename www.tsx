@@ -1,50 +1,127 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Box, Typography, Card } from '@deere/fuel-react'
+import {
+  Box,
+  Typography,
+  Card,
+  Input,
+  InputGroup,
+  InputIcon,
+  Scrollbar,
+} from '@deere/fuel-react'
+import { SearchIcon } from 'lucide-react'
 
-interface SupplierData {
+interface SupplierOption {
   PARTNER_VENDOR: string
   ORDER_FROM_SUPPLIER_NAME: string
-  SHORT_TEXT: string
-  Strategy_Title: string
-  Strategy_Description: string
 }
 
-export const SupplierStrategyTest = () => {
-  const [data, setData] = useState<SupplierData[] | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+interface SupplierDetails {
+  STRATEGY_TITLE: string
+  STRATEGY_DESC: string
+  SHORT_TEXT: string[]
+}
+
+export const SupplierProfile = () => {
+  const [query, setQuery] = useState('')
+  const [options, setOptions] = useState<SupplierOption[]>([])
+  const [selectedVendor, setSelectedVendor] = useState<string>('')
+  const [details, setDetails] = useState<SupplierDetails | null>(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/supplier_strategy_details')
-      .then(response => {
-        setData(response.data)
-        setLoading(false)
+    if (query.length < 1) {
+      setOptions([])
+      return
+    }
+    const delayDebounce = setTimeout(() => {
+      axios
+        .get(`http://localhost:8080/api/search_vendors?query=${query}`)
+        .then((res) => {
+          setOptions(res.data)
+        })
+        .catch((err) => {
+          console.error('Error loading suggestions', err)
+        })
+    }, 300)
+
+    return () => clearTimeout(delayDebounce)
+  }, [query])
+
+  useEffect(() => {
+    if (!selectedVendor) return
+    setLoading(true)
+    axios
+      .get(`http://localhost:8080/api/supplier_profile?vendor=${selectedVendor}`)
+      .then((res) => {
+        setDetails(res.data)
       })
-      .catch(error => {
-        console.error("Error fetching supplier strategy details:", error)
-        setError("Hubo un error al cargar los datos.")
-        setLoading(false)
+      .catch((err) => {
+        console.error('Error loading vendor details', err)
       })
-  }, [])
+      .finally(() => setLoading(false))
+  }, [selectedVendor])
 
   return (
-    <Box padding={4}>
+    <Box padding={6}>
       <Typography variant="h2" marginBottom={3}>
-        🧾 Supplier Strategy Details
+        📚 Supplier Profile
       </Typography>
-      {loading && <Typography>Cargando datos...</Typography>}
-      {error && <Typography color="error">{error}</Typography>}
-      {!loading && data && Array.isArray(data) && data.map((item, index) => (
-        <Card key={index} sx={{ padding: 3, marginBottom: 2 }}>
-          <Typography variant="h4">{item.ORDER_FROM_SUPPLIER_NAME}</Typography>
-          <Typography variant="body1">
-            Vendor: {item.PARTNER_VENDOR}<br />
-            {item.SHORT_TEXT}<br />
-            <strong>{item.Strategy_Title}</strong>: {item.Strategy_Description}
+
+      <InputGroup size="lg" marginBottom={4}>
+        <InputIcon>
+          <SearchIcon size={20} />
+        </InputIcon>
+        <Input
+          placeholder="Search by Vendor Number or Company Name..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </InputGroup>
+
+      <Box marginBottom={5}>
+        {options.map((opt) => (
+          <Typography
+            key={opt.PARTNER_VENDOR}
+            onClick={() => setSelectedVendor(opt.PARTNER_VENDOR)}
+            sx={{
+              cursor: 'pointer',
+              marginBottom: 1,
+              '&:hover': { textDecoration: 'underline' },
+            }}
+          >
+            {opt.PARTNER_VENDOR} – {opt.ORDER_FROM_SUPPLIER_NAME}
           </Typography>
-        </Card>
-      ))}
+        ))}
+      </Box>
+
+      {loading && <Typography>Loading supplier details...</Typography>}
+
+      {!loading && details && (
+        <Box display="flex" gap={4}>
+          <Card padding={4} width="30%">
+            <Typography variant="h4" marginBottom={2}>
+              📄 Strategy Profile
+            </Typography>
+            <Typography fontWeight="bold">{details.STRATEGY_TITLE}</Typography>
+            <Typography>{details.STRATEGY_DESC}</Typography>
+          </Card>
+
+          <Card padding={4} width="70%">
+            <Typography variant="h4" marginBottom={2}>
+              📗 Purchase Profile
+            </Typography>
+            <Scrollbar height="300px">
+              {details.SHORT_TEXT.map((item, index) => (
+                <Typography key={index} marginBottom={1}>
+                  {item}
+                </Typography>
+              ))}
+            </Scrollbar>
+          </Card>
+        </Box>
+      )}
     </Box>
   )
 }
+
