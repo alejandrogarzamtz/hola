@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import {
-  Box,
-  Typography,
-  Card,
-  Input,
-  InputGroup,
-  InputIcon,
-  Scrollbar,
-} from '@deere/fuel-react'
+import { Box, Input, Typography, Card } from '@deere/fuel-react'
 import { SearchIcon } from 'lucide-react'
 
 interface SupplierOption {
@@ -18,110 +10,96 @@ interface SupplierOption {
 
 interface SupplierDetails {
   STRATEGY_TITLE: string
-  STRATEGY_DESC: string
+  STRATEGY_DESCRIPTION: string
   SHORT_TEXT: string[]
 }
 
-export const SupplierProfile = () => {
+export const SupplierStrategyTest = () => {
   const [query, setQuery] = useState('')
-  const [options, setOptions] = useState<SupplierOption[]>([])
-  const [selectedVendor, setSelectedVendor] = useState<string>('')
+  const [suggestions, setSuggestions] = useState<SupplierOption[]>([])
   const [details, setDetails] = useState<SupplierDetails | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (query.length < 1) {
-      setOptions([])
+    if (query.length === 0) {
+      setSuggestions([])
       return
     }
-    const delayDebounce = setTimeout(() => {
-      axios
-        .get(`http://localhost:8080/api/search_vendors?query=${query}`)
-        .then((res) => {
-          setOptions(res.data)
-        })
-        .catch((err) => {
-          console.error('Error loading suggestions', err)
-        })
+    const timeout = setTimeout(() => {
+      axios.get(`http://localhost:8080/api/supplier_search?q=${query}`)
+        .then(res => setSuggestions(res.data))
+        .catch(err => console.error('Error fetching suggestions:', err))
     }, 300)
 
-    return () => clearTimeout(delayDebounce)
+    return () => clearTimeout(timeout)
   }, [query])
 
-  useEffect(() => {
-    if (!selectedVendor) return
+  const handleSelect = (vendor: string) => {
     setLoading(true)
-    axios
-      .get(`http://localhost:8080/api/supplier_profile?vendor=${selectedVendor}`)
-      .then((res) => {
+    axios.get(`http://localhost:8080/api/supplier_details?vendor=${vendor}`)
+      .then(res => {
         setDetails(res.data)
+        setLoading(false)
       })
-      .catch((err) => {
-        console.error('Error loading vendor details', err)
+      .catch(err => {
+        console.error('Error fetching details:', err)
+        setLoading(false)
       })
-      .finally(() => setLoading(false))
-  }, [selectedVendor])
+  }
 
   return (
-    <Box padding={6}>
+    <Box padding={4}>
       <Typography variant="h2" marginBottom={3}>
-        📚 Supplier Profile
+        📌 Supplier Profile
       </Typography>
-
-      <InputGroup size="lg" marginBottom={4}>
-        <InputIcon>
-          <SearchIcon size={20} />
-        </InputIcon>
+      <Box position="relative" marginBottom={2}>
         <Input
-          placeholder="Search by Vendor Number or Company Name..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e: any) => setQuery(e.target.value)}
+          placeholder="Search by Vendor Number or Company Name..."
         />
-      </InputGroup>
-
-      <Box marginBottom={5}>
-        {options.map((opt) => (
-          <Typography
-            key={opt.PARTNER_VENDOR}
-            onClick={() => setSelectedVendor(opt.PARTNER_VENDOR)}
-            sx={{
-              cursor: 'pointer',
-              marginBottom: 1,
-              '&:hover': { textDecoration: 'underline' },
-            }}
-          >
-            {opt.PARTNER_VENDOR} – {opt.ORDER_FROM_SUPPLIER_NAME}
-          </Typography>
-        ))}
+        {suggestions.length > 0 && (
+          <Box sx={{ border: '1px solid #ccc', position: 'absolute', width: '100%', background: 'white', zIndex: 10 }}>
+            {suggestions.map((option, index) => (
+              <Box
+                key={index}
+                padding={2}
+                sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f1f1f1' } }}
+                onClick={() => handleSelect(option.PARTNER_VENDOR)}
+              >
+                {option.PARTNER_VENDOR} – {option.ORDER_FROM_SUPPLIER_NAME}
+              </Box>
+            ))}
+          </Box>
+        )}
       </Box>
-
-      {loading && <Typography>Loading supplier details...</Typography>}
 
       {!loading && details && (
         <Box display="flex" gap={4}>
-          <Card padding={4} width="30%">
+          <Card sx={{ padding: 4, width: '30%' }}>
             <Typography variant="h4" marginBottom={2}>
               📄 Strategy Profile
             </Typography>
-            <Typography fontWeight="bold">{details.STRATEGY_TITLE}</Typography>
-            <Typography>{details.STRATEGY_DESC}</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {details.STRATEGY_TITLE}
+            </Typography>
+            <Typography variant="body2">
+              {details.STRATEGY_DESCRIPTION}
+            </Typography>
           </Card>
 
-          <Card padding={4} width="70%">
+          <Card sx={{ padding: 4, width: '70%' }}>
             <Typography variant="h4" marginBottom={2}>
-              📗 Purchase Profile
+              📅 Purchase Profile
             </Typography>
-            <Scrollbar height="300px">
+            <Box height="300px" sx={{ overflowY: 'scroll' }}>
               {details.SHORT_TEXT.map((item, index) => (
-                <Typography key={index} marginBottom={1}>
-                  {item}
-                </Typography>
+                <Typography key={index} marginBottom={1}>{item}</Typography>
               ))}
-            </Scrollbar>
+            </Box>
           </Card>
         </Box>
       )}
     </Box>
   )
 }
-
