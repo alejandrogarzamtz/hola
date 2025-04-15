@@ -17,7 +17,13 @@ export const SupplierStrategyTest = () => {
   useEffect(() => {
     axios.get('http://localhost:8080/api/supplier_strategy_details')
       .then(response => {
-        setData(response.data)
+        console.log("Respuesta del backend:", response.data)
+        if (Array.isArray(response.data)) {
+          setData(response.data)
+        } else {
+          console.error("La respuesta no es un arreglo:", response.data)
+          setData([])
+        }
         setLoading(false)
       })
       .catch(error => {
