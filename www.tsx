@@ -9,9 +9,9 @@ interface SupplierOption {
 }
 
 interface SupplierDetails {
-  strategy_title: string
-  strategy_desc: string
-  purchase_profile: string[]
+  STRATEGY_TITLE: string
+  STRATEGY_DESCRIPTION: string
+  SHORT_TEXT: string[]
 }
 
 export const SupplierStrategyTest = () => {
@@ -25,7 +25,6 @@ export const SupplierStrategyTest = () => {
       setSuggestions([])
       return
     }
-
     const timeout = setTimeout(() => {
       axios.get(`http://localhost:8080/api/suppliers?q=${query}`)
         .then(res => setSuggestions(res.data))
@@ -37,7 +36,7 @@ export const SupplierStrategyTest = () => {
 
   const handleSelect = (vendor: string) => {
     setLoading(true)
-    setSuggestions([])
+    setSuggestions([]) // limpia los resultados
     axios.get(`http://localhost:8080/api/supplier_profile?vendor=${vendor}`)
       .then(res => {
         setDetails(res.data)
@@ -84,10 +83,10 @@ export const SupplierStrategyTest = () => {
               📄 Strategy Profile
             </Typography>
             <Typography variant="body1" fontWeight="bold">
-              {details.strategy_title}
+              {details.STRATEGY_TITLE}
             </Typography>
             <Typography variant="body2">
-              {details.strategy_desc}
+              {details.STRATEGY_DESCRIPTION}
             </Typography>
           </Card>
 
@@ -96,7 +95,7 @@ export const SupplierStrategyTest = () => {
               📅 Purchase Profile
             </Typography>
             <Box height="300px" sx={{ overflowY: 'scroll' }}>
-              {details.purchase_profile.map((item, index) => (
+              {details.SHORT_TEXT.map((item, index) => (
                 <Typography key={index} marginBottom={1}>{item}</Typography>
               ))}
             </Box>
