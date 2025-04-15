@@ -11,23 +11,19 @@ interface SupplierData {
 }
 
 export const SupplierStrategyTest = () => {
-  const [data, setData] = useState<SupplierData[]>([])
+  const [data, setData] = useState<SupplierData[] | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/supplier_strategy_details')
       .then(response => {
-        console.log("Respuesta del backend:", response.data)
-        if (Array.isArray(response.data)) {
-          setData(response.data)
-        } else {
-          console.error("La respuesta no es un arreglo:", response.data)
-          setData([])
-        }
+        setData(response.data)
         setLoading(false)
       })
       .catch(error => {
         console.error("Error fetching supplier strategy details:", error)
+        setError("Hubo un error al cargar los datos.")
         setLoading(false)
       })
   }, [])
@@ -37,20 +33,18 @@ export const SupplierStrategyTest = () => {
       <Typography variant="h2" marginBottom={3}>
         🧾 Supplier Strategy Details
       </Typography>
-      {loading ? (
-        <Typography>Loading...</Typography>
-      ) : (
-        data.map((item, index) => (
-          <Card key={index} sx={{ padding: 3, marginBottom: 2 }}>
-            <Typography variant="h4">{item.ORDER_FROM_SUPPLIER_NAME}</Typography>
-            <Typography variant="body1">
-              Vendor: {item.PARTNER_VENDOR}<br />
-              {item.SHORT_TEXT}<br />
-              <strong>{item.Strategy_Title}</strong>: {item.Strategy_Description}
-            </Typography>
-          </Card>
-        ))
-      )}
+      {loading && <Typography>Cargando datos...</Typography>}
+      {error && <Typography color="error">{error}</Typography>}
+      {!loading && data && Array.isArray(data) && data.map((item, index) => (
+        <Card key={index} sx={{ padding: 3, marginBottom: 2 }}>
+          <Typography variant="h4">{item.ORDER_FROM_SUPPLIER_NAME}</Typography>
+          <Typography variant="body1">
+            Vendor: {item.PARTNER_VENDOR}<br />
+            {item.SHORT_TEXT}<br />
+            <strong>{item.Strategy_Title}</strong>: {item.Strategy_Description}
+          </Typography>
+        </Card>
+      ))}
     </Box>
   )
 }
