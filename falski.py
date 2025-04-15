@@ -7,7 +7,7 @@ def get_supplier_strategy_details():
         connection = sql.connect(
             server_hostname="deere-edl.cloud.databricks.com",
             http_path="/sql/1.0/warehouses/a11c5b83a9f2f69c",
-            access_token="dapi7804f6f7746f79416aa8d409e5e2d676"  # tu nuevo token
+            access_token=""  # tu nuevo token
         )
         cursor = connection.cursor()
 
