@@ -3,13 +3,15 @@ def get_supplier_strategy_details():
     try:
         print("👉 Endpoint /api/supplier_strategy_details fue llamado")
 
+        # Conexión a Databricks
         connection = sql.connect(
             server_hostname="deere-edl.cloud.databricks.com",
             http_path="/sql/1.0/warehouses/a11c5b83a9f2f69c",
-            access_token="dapi86b04f9c73c07e48d3cbb3835c0552b6"
+            access_token="dapi7804f6f7746f79416aa8d409e5e2d676"  # tu nuevo token
         )
         cursor = connection.cursor()
 
+        # Query completa
         query = """
         WITH base_po AS (
             SELECT DISTINCT
@@ -41,13 +43,6 @@ def get_supplier_strategy_details():
         FROM base_po AS base
         LEFT JOIN supplier_strategy AS ss
             ON base.PARTNER_VENDOR = ss.supplier_number
-        WHERE base.PARTNER_VENDOR IN (
-            '0000341561', '0000340828', '0000381569', '0000381620', '0000369781', '000010650',
-            '000046980', '000010014', '0000382291', '000079721', '000065964', '000043300',
-            '000026429', '0000379900', '0000344032', '000015018', '000078876', '000036446',
-            '0000379555', '0000307672', '000026844', '000058372', '000086049', '0000379727',
-            '0000349295', '0000352638', '0000378025', '0000329579'
-        )
         ORDER BY base.ORDER_FROM_SUPPLIER_NAME ASC
         """
 
@@ -55,14 +50,14 @@ def get_supplier_strategy_details():
         results = cursor.fetchall()
         columns = [desc[0] for desc in cursor.description]
 
-        result_list = [dict(zip(columns, row)) for row in results]
-
         cursor.close()
         connection.close()
+
+        result_list = [dict(zip(columns, row)) for row in results[:50]]  # Solo primeros 50
 
         print(f"🔍 Resultados: {len(result_list)} registros enviados.")
         return jsonify(result_list), 200
 
     except Exception as e:
-        print(f"❌ Error en la consulta: {e}")
+        print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
