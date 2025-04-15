@@ -4,14 +4,14 @@ import { Box, Input, Typography, Card } from '@deere/fuel-react'
 import { SearchIcon } from 'lucide-react'
 
 interface SupplierOption {
-  PARTNER_VENDOR: string
-  ORDER_FROM_SUPPLIER_NAME: string
+  vendor: string
+  name: string
 }
 
 interface SupplierDetails {
-  STRATEGY_TITLE: string
-  STRATEGY_DESCRIPTION: string
-  SHORT_TEXT: string[]
+  strategy_title: string
+  strategy_desc: string
+  purchase_profile: string[]
 }
 
 export const SupplierStrategyTest = () => {
@@ -25,8 +25,9 @@ export const SupplierStrategyTest = () => {
       setSuggestions([])
       return
     }
+
     const timeout = setTimeout(() => {
-      axios.get(`http://localhost:8080/api/supplier_search?q=${query}`)
+      axios.get(`http://localhost:8080/api/suppliers?q=${query}`)
         .then(res => setSuggestions(res.data))
         .catch(err => console.error('Error fetching suggestions:', err))
     }, 300)
@@ -36,7 +37,8 @@ export const SupplierStrategyTest = () => {
 
   const handleSelect = (vendor: string) => {
     setLoading(true)
-    axios.get(`http://localhost:8080/api/supplier_details?vendor=${vendor}`)
+    setSuggestions([])
+    axios.get(`http://localhost:8080/api/supplier_profile?vendor=${vendor}`)
       .then(res => {
         setDetails(res.data)
         setLoading(false)
@@ -52,6 +54,7 @@ export const SupplierStrategyTest = () => {
       <Typography variant="h2" marginBottom={3}>
         📌 Supplier Profile
       </Typography>
+
       <Box position="relative" marginBottom={2}>
         <Input
           value={query}
@@ -65,9 +68,9 @@ export const SupplierStrategyTest = () => {
                 key={index}
                 padding={2}
                 sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f1f1f1' } }}
-                onClick={() => handleSelect(option.PARTNER_VENDOR)}
+                onClick={() => handleSelect(option.vendor)}
               >
-                {option.PARTNER_VENDOR} – {option.ORDER_FROM_SUPPLIER_NAME}
+                {option.vendor} – {option.name}
               </Box>
             ))}
           </Box>
@@ -81,10 +84,10 @@ export const SupplierStrategyTest = () => {
               📄 Strategy Profile
             </Typography>
             <Typography variant="body1" fontWeight="bold">
-              {details.STRATEGY_TITLE}
+              {details.strategy_title}
             </Typography>
             <Typography variant="body2">
-              {details.STRATEGY_DESCRIPTION}
+              {details.strategy_desc}
             </Typography>
           </Card>
 
@@ -93,7 +96,7 @@ export const SupplierStrategyTest = () => {
               📅 Purchase Profile
             </Typography>
             <Box height="300px" sx={{ overflowY: 'scroll' }}>
-              {details.SHORT_TEXT.map((item, index) => (
+              {details.purchase_profile.map((item, index) => (
                 <Typography key={index} marginBottom={1}>{item}</Typography>
               ))}
             </Box>
@@ -103,3 +106,4 @@ export const SupplierStrategyTest = () => {
     </Box>
   )
 }
+
