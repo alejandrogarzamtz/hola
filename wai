@@ -1,0 +1,34 @@
+@app.route('/api/suppliers', methods=['GET'])
+def search_suppliers():
+    search = request.args.get('q', '')
+    connection = sql.connect(
+        server_hostname="deere-edl.cloud.databricks.com",
+        http_path="/sql/1.0/warehouses/a11c5b83a9f2f69c",
+        access_token="TU_TOKEN"
+    )
+    cursor = connection.cursor()
+
+    query = f'''
+        SELECT DISTINCT
+            PO.PARTNER_VENDOR,
+            PO.ORDER_FROM_SUPPLIER_NAME
+        FROM edl_current.manufacturing_purchasing_documents_header_ag AS PO
+        WHERE PO.ORDER_FROM_SUPPLIER_NAME LIKE '%{search}%'
+           OR PO.PARTNER_VENDOR LIKE '%{search}%'
+        ORDER BY PO.ORDER_FROM_SUPPLIER_NAME ASC
+        LIMIT 50
+    '''
+
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    # Cambiar estructura aquí:
+    return jsonify([
+        {
+            'PARTNER_VENDOR': row[0].strip() if row[0] else '',
+            'ORDER_FROM_SUPPLIER_NAME': row[1].strip() if row[1] else ''
+        }
+        for row in results
+    ])
