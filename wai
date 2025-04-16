@@ -4,17 +4,18 @@ def search_suppliers():
     connection = sql.connect(
         server_hostname="deere-edl.cloud.databricks.com",
         http_path="/sql/1.0/warehouses/a11c5b83a9f2f69c",
-        access_token="TU_TOKEN"
+        access_token="REEMPLAZAR_POR_TU_TOKEN"
     )
     cursor = connection.cursor()
 
     query = f'''
-        SELECT DISTINCT
+        SELECT
             PO.PARTNER_VENDOR,
             PO.ORDER_FROM_SUPPLIER_NAME
         FROM edl_current.manufacturing_purchasing_documents_header_ag AS PO
         WHERE PO.ORDER_FROM_SUPPLIER_NAME LIKE '%{search}%'
            OR PO.PARTNER_VENDOR LIKE '%{search}%'
+        GROUP BY PO.PARTNER_VENDOR, PO.ORDER_FROM_SUPPLIER_NAME
         ORDER BY PO.ORDER_FROM_SUPPLIER_NAME ASC
         LIMIT 50
     '''
@@ -24,11 +25,15 @@ def search_suppliers():
     cursor.close()
     connection.close()
 
-    # Cambiar estructura aquí:
-    return jsonify([
-        {
-            'PARTNER_VENDOR': row[0].strip() if row[0] else '',
-            'ORDER_FROM_SUPPLIER_NAME': row[1].strip() if row[1] else ''
-        }
-        for row in results
-    ])
+    unique = set()
+    filtered_results = []
+    for row in results:
+        key = f"{row[0]}|{row[1]}"
+        if key not in unique:
+            unique.add(key)
+            filtered_results.append({
+                'PARTNER_VENDOR': row[0].strip() if row[0] else '',
+                'ORDER_FROM_SUPPLIER_NAME': row[1].strip() if row[1] else ''
+            })
+
+    return jsonify(filtered_results)
