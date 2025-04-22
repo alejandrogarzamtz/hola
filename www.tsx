@@ -1,105 +1,55 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Box, Input, Typography, Card } from '@deere/fuel-react';
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Box, Input, Typography } from '@deere/fuel-react'
 
 interface SupplierOption {
-  vendor: string;
-  name: string;
-}
-
-interface SupplierDetails {
-  STRATEGY_TITLE: string;
-  STRATEGY_DESCRIPTION: string;
-  SHORT_TEXT: string[];
+  vendor: string
+  name: string
 }
 
 export const SupplierStrategyTest = () => {
-  const [query, setQuery] = useState('');
-  const [suggestions, setSuggestions] = useState<SupplierOption[]>([]);
-  const [details, setDetails] = useState<SupplierDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [allLoaded, setAllLoaded] = useState(false);
+  const [suppliers, setSuppliers] = useState<SupplierOption[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/suppliers')
       .then(res => {
-        setSuggestions(res.data);
-        setAllLoaded(true);
-        setLoading(false);
+        setSuppliers(res.data)
+        setLoading(false)
       })
       .catch(err => {
-        console.error('❌ Error loading suppliers:', err);
-        setError(true);
-        setLoading(false);
-      });
-  }, []);
-
-  const handleSelect = (vendor: string) => {
-    setLoading(true);
-    setSuggestions([]);
-    axios.get(`http://localhost:8080/api/supplier_profile?vendor=${vendor}`)
-      .then(res => {
-        setDetails(res.data);
-        setLoading(false);
+        console.error('Error loading suppliers:', err)
+        setError(true)
+        setLoading(false)
       })
-      .catch(err => {
-        console.error('Error fetching details:', err);
-        setLoading(false);
-      });
-  };
-
-  const filteredSuggestions = suggestions.filter((s) =>
-    (s.name?.toLowerCase().includes(query.toLowerCase()) ||
-     s.vendor?.toLowerCase().includes(query.toLowerCase()))
-  );
+  }, [])
 
   return (
-    <Box>
-      {loading && !allLoaded && (
-        <Typography variant="body">Loading suppliers...</Typography>
+    <Box p="4">
+      <Typography variant="h4">Supplier for the Purchase Order</Typography>
+
+      {loading && (
+        <Typography>Loading suppliers...</Typography>
       )}
 
       {error && (
         <Typography color="danger">Error loading suppliers</Typography>
       )}
 
-      {!loading && allLoaded && (
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by Vendor Number or Name"
-        />
-      )}
-
-      {!loading && allLoaded && query.length > 0 && (
-        <Box style={{ maxHeight: '250px', overflowY: 'scroll' }}>
-          {filteredSuggestions.map((s, i) => (
-            <Box
-              key={i}
-              onClick={() => handleSelect(s.vendor)}
-              style={{ padding: '4px', cursor: 'pointer' }}
-            >
-              {s.vendor} {s.name}
+      {!loading && !error && (
+        <Box mt="2" border="1px solid #ccc" borderRadius="md" maxHeight="300px" overflowY="scroll">
+          {suppliers.map((s, i) => (
+            <Box key={i} px="4" py="2" borderBottom="1px solid #eee">
+              <Typography>{`${s.vendor} ${s.name}`}</Typography>
             </Box>
           ))}
         </Box>
       )}
-
-      {details && (
-        <Card>
-          <Typography variant="h5">{details.STRATEGY_TITLE}</Typography>
-          <Typography>{details.STRATEGY_DESCRIPTION}</Typography>
-          <ul>
-            {details.SHORT_TEXT.map((text, i) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ul>
-        </Card>
-      )}
     </Box>
-  );
-};
+  )
+}
+
 
 
 
