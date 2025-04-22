@@ -1,48 +1,56 @@
-@app.route('/api/supplier_strategy_details')
+@app.route('/api/supplier_strategy_details', methods=['GET'])
 def get_supplier_strategy_details():
     vendor = request.args.get('vendor')
+    if not vendor:
+        return jsonify({'error': 'Vendor number is required'}), 400
 
-    connection = get_connection()
+    connection = sql.connect(
+        server_hostname="deere-edl.cloud.databricks.com",
+        http_path="/sql/1.0/warehouses/a11c5b83a9f2f69c",
+        access_token="dapi7804f46774679416aa8d409e5e2d676"
+    )
     cursor = connection.cursor()
 
-    base_query = f"""
-    SELECT
-        COALESCE(PO.ORDER_FROM_SUPPLIER_NAME, 'N/A') AS ORDER_FROM_SUPPLIER_NAME,
-        COALESCE(PO_Item.SHORT_TEXT, 'N/A') AS SHORT_TEXT,
-        COALESCE(strat.strategy_title, 'N/A') AS strategy_title,
-        COALESCE(strat.strategy_desc, 'N/A') AS strategy_desc
-    FROM edl_current.manufacturing_purchasing_documents_header_ag AS PO
-    INNER JOIN edl_current.manufacturing_purchasing_documents_item_ag AS PO_Item
-        ON PO.PURCHASING_DOCUMENT = PO_Item.PURCHASING_DOCUMENT
-    LEFT JOIN edl_current.supplier_strategic_sourcing_ims_supplier AS Supplier
-        ON PO.PARTNER_VENDOR = Supplier.supplier_number
-    LEFT JOIN edl_current.supplier_strategic_sourcing_ims_strategy AS strat
-        ON Supplier.strategy_id = strat.strategy_id
-    WHERE PO.PARTNER_VENDOR = '{vendor}'
-      AND PO.ORDER_FROM_SUPPLIER_NAME IS NOT NULL
-      AND PO.CREATED_ON > '2025-01-01'
-      AND PO.PURCHASING_DOCUMENT_CATEGORY = 'F'
-      AND PO_Item.MATERIAL_GROUP_CODE LIKE 'N%'
-    ORDER BY PO.ORDER_FROM_SUPPLIER_NAME ASC
-    """
+    query = f'''
+        SELECT
+            PO.ORDER_FROM_SUPPLIER_NAME,
+            PO_Item.SHORT_TEXT,
+            strat.strategy_title,
+            strat.strategy_desc
+        FROM edl_current.manufacturing_purchasing_documents_header_ag AS PO
+        INNER JOIN edl_current.manufacturing_purchasing_documents_item_ag AS PO_Item
+            ON PO.PURCHASING_DOCUMENT = PO_Item.PURCHASING_DOCUMENT
+        LEFT JOIN edl_current.supplier_strategic_sourcing_ims_supplier AS Supplier
+            ON PO.PARTNER_VENDOR = Supplier.supplier_number
+        LEFT JOIN edl_current.supplier_strategic_sourcing_ims_strategy AS strat
+            ON Supplier.strategy_id = strat.strategy_id
+        WHERE PO.PARTNER_VENDOR = '{vendor}'
+    '''
 
-    cursor.execute(base_query)
-    results = cursor.fetchall()
-    connection.close()
+    try:
+        cursor.execute(query)
+        results = cursor.fetchall()
+    except Exception as e:
+        print("❌ SQL Error:", e)
+        return jsonify({'error': 'Query failed'}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
     if not results:
         return jsonify({
             "strategy_title": "N/A",
             "strategy_desc": "N/A",
-            "short_texts": []
+            "short_texts": "N/A"
         })
 
-    strategy_title = results[0][2] or "N/A"
-    strategy_desc = results[0][3] or "N/A"
-    short_texts = list({row[1] for row in results if row[1] is not None})
+    strategy_title = next((r[2] for r in results if r[2]), "N/A")
+    strategy_desc = next((r[3] for r in results if r[3]), "N/A")
+    short_texts = [r[1] for r in results if r[1]]
+    concatenated = ', '.join(short_texts) if short_texts else "N/A"
 
     return jsonify({
         "strategy_title": strategy_title,
         "strategy_desc": strategy_desc,
-        "short_texts": short_texts
+        "short_texts": concatenated
     })
