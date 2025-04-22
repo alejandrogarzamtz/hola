@@ -9,17 +9,18 @@ def search_suppliers():
     )
     cursor = connection.cursor()
 
-    base_query = '''
+   base_query = '''
     SELECT DISTINCT
         CONCAT(
-            COALESCE(PO.PARTNER_VENDOR, ''), ' ',
-            COALESCE(PO.ORDER_FROM_SUPPLIER_NAME, '')
-        )
-    FROM edl_current.manufacturing_purchasing_documents_header_ag AS PO
-    WHERE PO.ORDER_FROM_SUPPLIER_NAME IS NOT NULL
-    ORDER BY PO.ORDER_FROM_SUPPLIER_NAME ASC
+            COALESCE(PARTNER_VENDOR, ''), ' ',
+            COALESCE(ORDER_FROM_SUPPLIER_NAME, '')
+        ) AS VENDOR_NAME
+    FROM edl_current.manufacturing_purchasing_documents_header_ag
+    WHERE ORDER_FROM_SUPPLIER_NAME IS NOT NULL
+    ORDER BY ORDER_FROM_SUPPLIER_NAME ASC
     LIMIT 5
 '''
+
 
     cursor.execute(base_query)
     results = cursor.fetchall()
