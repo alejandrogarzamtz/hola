@@ -10,7 +10,6 @@ export const SupplierStrategyTest = () => {
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [query, setQuery] = useState('')
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/suppliers')
@@ -25,34 +24,24 @@ export const SupplierStrategyTest = () => {
       })
   }, [])
 
-  if (loading) return <div style={{ padding: '1rem' }}>Loading suppliers...</div>
-  if (error) return <div style={{ padding: '1rem', color: 'red' }}>Error loading suppliers</div>
-
-  const filteredSuppliers = suppliers.filter(s =>
-    (s.vendor?.toLowerCase() || '').includes(query.toLowerCase()) ||
-    (s.name?.toLowerCase() || '').includes(query.toLowerCase())
-  )
-
   return (
     <div style={{ padding: '1rem' }}>
       <h2>Supplier for the Purchase Order</h2>
 
-      <input
-        type="text"
-        placeholder="Search by Vendor or Name"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem' }}
-      />
+      {loading && <p>Loading suppliers...</p>}
+      {error && <p style={{ color: 'red' }}>Error loading suppliers</p>}
 
-      <div style={{ border: '1px solid #ccc', borderRadius: '4px', maxHeight: '300px', overflowY: 'scroll' }}>
-        {filteredSuppliers.map((s, i) => (
-          <div key={i} style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>
-            {s.vendor} {s.name}
-          </div>
-        ))}
-      </div>
+      {!loading && !error && (
+        <div style={{ border: '1px solid #ccc', borderRadius: '4px', maxHeight: '300px', overflowY: 'scroll' }}>
+          {suppliers.map((s, i) => (
+            <div key={i} style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
+              {`${s.vendor} ${s.name}`}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
-} 
+}
+
 
