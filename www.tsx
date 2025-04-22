@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Box, Input, Typography } from '@deere/fuel-react'
 
 interface SupplierOption {
   vendor: string
@@ -26,27 +25,27 @@ export const SupplierStrategyTest = () => {
   }, [])
 
   return (
-    <Box p="4">
-      <Typography variant="h4">Supplier for the Purchase Order</Typography>
+    <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
+      <h2>Supplier for the Purchase Order</h2>
 
       {loading && (
-        <Typography>Loading suppliers...</Typography>
+        <p>Loading suppliers...</p>
       )}
 
       {error && (
-        <Typography color="danger">Error loading suppliers</Typography>
+        <p style={{ color: 'red' }}>Error loading suppliers</p>
       )}
 
       {!loading && !error && (
-        <Box mt="2" border="1px solid #ccc" borderRadius="md" maxHeight="300px" overflowY="scroll">
+        <div style={{ border: '1px solid #ccc', borderRadius: '6px', maxHeight: '300px', overflowY: 'auto', marginTop: '1rem' }}>
           {suppliers.map((s, i) => (
-            <Box key={i} px="4" py="2" borderBottom="1px solid #eee">
-              <Typography>{`${s.vendor} ${s.name}`}</Typography>
-            </Box>
+            <div key={i} style={{ padding: '8px 16px', borderBottom: '1px solid #eee' }}>
+              {`${s.vendor} ${s.name}`}
+            </div>
           ))}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   )
 }
 
