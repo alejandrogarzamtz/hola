@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Box, Input, Typography, Card } from '@deere/fuel-react'
-import { SearchIcon } from 'lucide-react'
 
 interface SupplierOption {
   vendor: string
@@ -20,30 +19,23 @@ export const SupplierStrategyTest = () => {
   const [details, setDetails] = useState<SupplierDetails | null>(null)
   const [loading, setLoading] = useState(false)
 
+  // 🔹 Al cargar la página: traer todos los suppliers
   useEffect(() => {
-    if (query.length === 0) {
-      setSuggestions([])
-      return
-    }
-    const timeout = setTimeout(() => {
-      axios.get(`http://localhost:8080/api/suppliers?q=${query}`)
-        .then(res => setSuggestions(res.data))
-        .catch(err => console.error('Error fetching suggestions:', err))
-    }, 300)
-
-    return () => clearTimeout(timeout)
-  }, [query])
+    axios.get('http://localhost:8080/api/suppliers')
+      .then(res => setSuggestions(res.data))
+      .catch(err => console.error('Error cargando todos los suppliers:', err))
+  }, [])
 
   const handleSelect = (vendor: string) => {
     setLoading(true)
-    setSuggestions([]) // limpia los resultados
+    setSuggestions([]) // limpia la lista
     axios.get(`http://localhost:8080/api/supplier_profile?vendor=${vendor}`)
       .then(res => {
         setDetails(res.data)
         setLoading(false)
       })
       .catch(err => {
-        console.error('Error fetching details:', err)
+        console.error('Error obteniendo detalles:', err)
         setLoading(false)
       })
   }
@@ -69,7 +61,7 @@ export const SupplierStrategyTest = () => {
                 sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f1f1f1' } }}
                 onClick={() => handleSelect(option.vendor)}
               >
-                {option.vendor} – {option.name}
+                {option.vendor} {option.name}
               </Box>
             ))}
           </Box>
@@ -105,4 +97,5 @@ export const SupplierStrategyTest = () => {
     </Box>
   )
 }
+
 
