@@ -1,4 +1,4 @@
-SELECT DISTINCT
+SELECT
   PO.PARTNER_VENDOR,
   PO.ORDER_FROM_SUPPLIER_NAME,
   PO_Item.SHORT_TEXT,
@@ -11,4 +11,5 @@ LEFT JOIN edl_current.supplier_strategic_sourcing_ims_supplier AS Supplier
   ON PO.PARTNER_VENDOR = Supplier.supplier_number
 LEFT JOIN edl_current.supplier_strategic_sourcing_ims_strategy AS strat
   ON Supplier.strategy_id = strat.strategy_id
-WHERE PO.PARTNER_VENDOR = '0000302355'
+WHERE PO.PARTNER_VENDOR = '0000032301'
+ORDER BY PO.ORDER_FROM_SUPPLIER_NAME ASC
