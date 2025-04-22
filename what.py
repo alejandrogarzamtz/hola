@@ -14,18 +14,10 @@ def search_suppliers():
     PO.PARTNER_VENDOR,
     PO.ORDER_FROM_SUPPLIER_NAME
 FROM edl_current.manufacturing_purchasing_documents_header_ag AS PO
-INNER JOIN edl_current.manufacturing_purchasing_documents_item_ag AS PO_Item
-    ON PO.PURCHASING_DOCUMENT = PO_Item.PURCHASING_DOCUMENT
-LEFT JOIN edl_current.supplier_strategic_sourcing_ims_supplier AS Supplier
-    ON PO.PARTNER_VENDOR = Supplier.supplier_number
-LEFT JOIN edl_current.supplier_strategic_sourcing_ims_strategy AS strat
-    ON Supplier.strategy_id = strat.strategy_id
 WHERE PO.ORDER_FROM_SUPPLIER_NAME IS NOT NULL
-    AND PO.CREATED_ON >= '2023-01-01'
-    AND PO.PURCHASING_DOCUMENT_CATEGORY = 'F'
-    AND PO_Item.MATERIAL_GROUP_CODE LIKE 'W%'
 ORDER BY PO.ORDER_FROM_SUPPLIER_NAME ASC
 LIMIT 5
+
 '''
 
 
