@@ -6,10 +6,10 @@ interface SupplierOption {
   name: string
 }
 
-interface SupplierProfile {
+interface StrategyDetails {
   strategy_title: string
   strategy_description: string
-  short_texts: string[]
+  purchase_profile: string
 }
 
 export const SupplierStrategyTest = () => {
@@ -18,7 +18,7 @@ export const SupplierStrategyTest = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [query, setQuery] = useState('')
-  const [profile, setProfile] = useState<SupplierProfile | null>(null)
+  const [details, setDetails] = useState<StrategyDetails | null>(null)
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/supplierss')
@@ -43,9 +43,12 @@ export const SupplierStrategyTest = () => {
   }, [query, suppliers])
 
   const handleSelect = (vendor: string) => {
-    axios.get(`http://localhost:8080/api/supplier_profile?vendor=${vendor}`)
-      .then(res => setProfile(res.data))
-      .catch(err => console.error('Error fetching profile:', err))
+    axios.get(`http://localhost:8080/api/supplier_strategy_details?vendor=${vendor}`)
+      .then(res => setDetails(res.data))
+      .catch(err => {
+        console.error('Error fetching strategy details:', err)
+        setDetails(null)
+      })
   }
 
   return (
@@ -62,19 +65,30 @@ export const SupplierStrategyTest = () => {
             placeholder="Search by vendor or name..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ padding: '8px', marginBottom: '10px', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
+            style={{
+              padding: '8px',
+              marginBottom: '10px',
+              width: '100%',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
           />
-
-          <div style={{
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            maxHeight: '300px',
-            overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'hidden'
-          }}>
+          <div
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              maxHeight: '300px',
+              overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto'
+            }}
+          >
             {filteredSuppliers.map((s, i) => (
               <div
                 key={i}
-                style={{ padding: '8px', borderBottom: '1px solid #eee', cursor: 'pointer' }}
+                style={{
+                  padding: '8px',
+                  borderBottom: '1px solid #eee',
+                  cursor: 'pointer'
+                }}
                 onClick={() => handleSelect(s.vendor)}
               >
                 {`${s.vendor} ${s.name}`}
@@ -84,21 +98,17 @@ export const SupplierStrategyTest = () => {
         </>
       )}
 
-      {profile && (
+      {details && (
         <>
-          <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #aaa' }}>
+          <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #007bff', borderRadius: '6px' }}>
             <h3>Strategy Profile</h3>
-            <p><strong>{profile.strategy_title}</strong></p>
-            <p>{profile.strategy_description}</p>
+            <p><strong>Title:</strong> {details.strategy_title}</p>
+            <p><strong>Description:</strong> {details.strategy_description}</p>
           </div>
 
-          <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #aaa' }}>
+          <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #28a745', borderRadius: '6px' }}>
             <h3>Purchase Profile</h3>
-            <ul>
-              {profile.short_texts.map((text, i) => (
-                <li key={i}>{text}</li>
-              ))}
-            </ul>
+            <p>{details.purchase_profile}</p>
           </div>
         </>
       )}
