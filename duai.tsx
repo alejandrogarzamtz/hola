@@ -95,18 +95,23 @@ export const SupplierStrategyTest = () => {
           {selectedSupplier && (
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ marginBottom: '10px' }}>{selectedSupplier.name}</h3>
-              {loadingDetails && <p>Loading supplier profile...</p>}
+
+              {loadingDetails && (
+                <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', backgroundColor: '#f9f9f9' }}>
+                  <p>Loading supplier profile...</p>
+                </div>
+              )}
 
               {!loadingDetails && details && (
                 <>
-                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px' }}>
-                    <h4>📄 Strategy Profile</h4>
+                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px', backgroundColor: '#f4f4f4' }}>
+                    <h4 style={{ marginBottom: '8px' }}>📄 Strategy Profile</h4>
                     <p><strong>{details.strategy_title}</strong></p>
                     <p>{details.strategy_description}</p>
                   </div>
 
-                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px' }}>
-                    <h4>📦 Purchase Profile</h4>
+                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', backgroundColor: '#f4f4f4' }}>
+                    <h4 style={{ marginBottom: '8px' }}>📦 Purchase Profile</h4>
                     <p>{details.purchase_profile}</p>
                   </div>
                 </>
@@ -118,3 +123,4 @@ export const SupplierStrategyTest = () => {
     </div>
   )
 }
+
