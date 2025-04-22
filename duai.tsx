@@ -20,6 +20,7 @@ export const SupplierStrategyTest = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [query, setQuery] = useState('')
+  const [loadingDetails, setLoadingDetails] = useState(false)
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/supplierss')
@@ -41,15 +42,23 @@ export const SupplierStrategyTest = () => {
       s.name.toLowerCase().includes(query.toLowerCase())
     )
     setFilteredSuppliers(filtered)
-    if (query.length > 0) setSelectedSupplier(null)  // reinicia selección si se escribe algo
+    if (query.length > 0) setSelectedSupplier(null)
   }, [query, suppliers])
 
   const handleSelect = (supplier: SupplierOption) => {
     setSelectedSupplier(supplier)
-    setQuery('') // limpia input visualmente
+    setQuery('')
+    setLoadingDetails(true)
+    setDetails(null)
     axios.get(`http://localhost:8080/api/supplier_strategy_details?vendor=${supplier.vendor}`)
-      .then(res => setDetails(res.data))
-      .catch(err => console.error('Error fetching details:', err))
+      .then(res => {
+        setDetails(res.data)
+        setLoadingDetails(false)
+      })
+      .catch(err => {
+        console.error('Error fetching details:', err)
+        setLoadingDetails(false)
+      })
   }
 
   return (
@@ -83,20 +92,25 @@ export const SupplierStrategyTest = () => {
             </div>
           )}
 
-          {selectedSupplier && details && (
+          {selectedSupplier && (
             <div style={{ marginTop: '20px' }}>
-              <h3 style={{ marginBottom: '5px' }}>{selectedSupplier.name}</h3>
+              <h3 style={{ marginBottom: '10px' }}>{selectedSupplier.name}</h3>
+              {loadingDetails && <p>Loading supplier profile...</p>}
 
-              <div style={{ marginBottom: '20px' }}>
-                <h4>📄 Strategy Profile</h4>
-                <p><strong>{details.strategy_title}</strong></p>
-                <p>{details.strategy_description}</p>
-              </div>
+              {!loadingDetails && details && (
+                <>
+                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px' }}>
+                    <h4>📄 Strategy Profile</h4>
+                    <p><strong>{details.strategy_title}</strong></p>
+                    <p>{details.strategy_description}</p>
+                  </div>
 
-              <div>
-                <h4>📦 Purchase Profile</h4>
-                <p>{details.purchase_profile}</p>
-              </div>
+                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px' }}>
+                    <h4>📦 Purchase Profile</h4>
+                    <p>{details.purchase_profile}</p>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </>
