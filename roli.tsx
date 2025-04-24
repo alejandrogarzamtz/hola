@@ -13,7 +13,7 @@ interface SupplierDetails {
   strategy_id: string
 }
 
-export const SupplierStrategyTest = () => {
+export const SupplierProfile = () => {
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([])
   const [filteredSuppliers, setFilteredSuppliers] = useState<SupplierOption[]>([])
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierOption | null>(null)
@@ -70,83 +70,42 @@ export const SupplierStrategyTest = () => {
       {loading && <p>Loading suppliers...</p>}
       {error && <p style={{ color: 'red' }}>Error loading suppliers</p>}
 
-      {!loading && !error && (
-        <>
-          <input
-            type="text"
-            placeholder="Search by vendor or name..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            style={{
-              padding: '8px',
-              marginBottom: '10px',
-              width: '100%',
-              border: '1px solid #ccc',
-              borderRadius: '4px'
-            }}
-          />
+      {!loading && !error && !loadingDetails && (
+        <input
+          type="text"
+          placeholder="Search by vendor or name..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{
+            padding: '8px',
+            marginBottom: '10px',
+            width: '100%',
+            border: '1px solid #ccc',
+            borderRadius: '4px'
+          }}
+        />
+      )}
 
-          {!selectedSupplier && filteredSuppliers.length > 0 && (
-            <div style={{
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              maxHeight: '300px',
-              overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto'
-            }}>
-              {filteredSuppliers.map((s, i) => (
-                <div
-                  key={i}
-                  onClick={() => handleSelect(s)}
-                  style={{
-                    padding: '8px',
-                    borderBottom: '1px solid #eee',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {`${s.vendor} ${s.name}`}
-                </div>
-              ))}
-            </div>
-          )}
+      {loadingDetails && <p>Loading supplier profile...</p>}
 
-          {selectedSupplier && details && (
-            <div style={{ marginTop: '20px' }}>
-              <h3 style={{ marginBottom: '10px' }}>
-                {selectedSupplier.name}
-                {details.strategy_id && ` #${details.strategy_id}`}
-              </h3>
+      {selectedSupplier && details && !loadingDetails && (
+        <div style={{ marginTop: '20px' }}>
+          <h3 style={{ marginBottom: '10px' }}>{selectedSupplier.name}</h3>
 
-              {loadingDetails && <p>Loading supplier profile...</p>}
+          <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px' }}>
+            <h4>📄 Strategy Profile</h4>
+            <p><strong>{details.strategy_title}{details.strategy_id ? ` #${details.strategy_id}` : ''}</strong></p>
+            <p>{details.strategy_description}</p>
+          </div>
 
-              {!loadingDetails && (
-                <>
-                  <div style={{
-                    border: '1px solid #ccc',
-                    borderRadius: '6px',
-                    padding: '15px',
-                    marginBottom: '20px'
-                  }}>
-                    <h4>📄 Strategy Profile</h4>
-                    <p><strong>{`${details.strategy_title}${details.strategy_id ? ` #${details.strategy_id}` : ''}`}</strong></p>
-                    <p>{details.strategy_description}</p>
-                  </div>
-
-                  <div style={{
-                    border: '1px solid #ccc',
-                    borderRadius: '6px',
-                    padding: '15px'
-                  }}>
-                    <h4>📦 Purchase Profile</h4>
-                    <p>{details.purchase_profile}</p>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </>
+          <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px' }}>
+            <h4>📦 Purchase Profile</h4>
+            <p>{details.purchase_profile}</p>
+          </div>
+        </div>
       )}
     </div>
   )
-}
+} 
 
 
