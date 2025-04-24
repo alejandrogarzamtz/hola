@@ -135,6 +135,15 @@ export const SupplierProfile = () => {
                   </strong>
                 </p>
                 <p>{details.strategy_description}</p>
+
+                <a
+                  href="https://smstrategymanagement.deere.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginTop: '10px', display: 'inline-block', color: '#0066cc' }}
+                >
+                  View in Strategy Management
+                </a>
               </div>
 
               <div style={{
@@ -152,6 +161,5 @@ export const SupplierProfile = () => {
     </div>
   )
 }
-
 
 
