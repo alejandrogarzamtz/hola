@@ -126,3 +126,19 @@ export const SupplierStrategyTest = () => {
   )
 }
 
+
+
+strategy_title = next((r[3] for r in rows if r[3]), "N/A")
+strategy_desc = next((str(r[4]).strip() for r in rows if r[4] and str(r[4]).strip()), "N/A")
+strategy_id = next((str(r[5]).strip() for r in rows if r[5]), "N/A")
+short_texts = [r[2].strip() for r in rows if r[2]]
+purchase_profile = "; ".join(short_texts) if short_texts else "N/A"
+
+return jsonify({
+    "strategy_title": strategy_title,
+    "strategy_description": strategy_desc,
+    "purchase_profile": purchase_profile,
+    "strategy_id": strategy_id
+})
+
+
