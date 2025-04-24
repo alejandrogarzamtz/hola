@@ -26,13 +26,13 @@ export const SupplierStrategyTest = () => {
   useEffect(() => {
     axios.get('http://localhost:8080/api/supplierss')
       .then(res => {
-        console.log('✅ Lista de proveedores cargada:', res.data)
+        console.log("✅ Proveedores cargados:", res.data)
         setSuppliers(res.data)
         setFilteredSuppliers(res.data)
         setLoading(false)
       })
       .catch(err => {
-        console.error('❌ Error loading suppliers:', err)
+        console.error('❌ Error cargando proveedores:', err)
         setError(true)
         setLoading(false)
       })
@@ -55,20 +55,18 @@ export const SupplierStrategyTest = () => {
 
     axios.get(`http://localhost:8080/api/supplier_strategy_details?vendor=${supplier.vendor}`)
       .then(res => {
-        console.log("📦 Detalles recibidos del backend:", res.data)
+        console.log("🧪 Detalles completos recibidos:", res.data) // << DEBUG PRINCIPAL
+        if (!res.data.strategy_id) {
+          console.warn("⚠️ strategy_id no existe en la respuesta:", res.data)
+        }
         setDetails(res.data)
-        setTimeout(() => {
-          console.log("🪪 Strategy ID directo:", res.data.strategy_id)
-        }, 200)
         setLoadingDetails(false)
       })
       .catch(err => {
-        console.error('❌ Error fetching details:', err)
+        console.error('❌ Error al obtener detalles:', err)
         setLoadingDetails(false)
       })
   }
-
-  console.log("📋 Render detalles:", details)
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -84,11 +82,22 @@ export const SupplierStrategyTest = () => {
             placeholder="Search by vendor or name..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ padding: '8px', marginBottom: '10px', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
+            style={{
+              padding: '8px',
+              marginBottom: '10px',
+              width: '100%',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
           />
 
           {!selectedSupplier && filteredSuppliers.length > 0 && (
-            <div style={{ border: '1px solid #ccc', borderRadius: '4px', maxHeight: '300px', overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto' }}>
+            <div style={{
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              maxHeight: '300px',
+              overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto'
+            }}>
               {filteredSuppliers.map((s, i) => (
                 <div
                   key={i}
@@ -112,13 +121,22 @@ export const SupplierStrategyTest = () => {
 
               {!loadingDetails && details && (
                 <>
-                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px' }}>
+                  <div style={{
+                    border: '1px solid #ccc',
+                    borderRadius: '6px',
+                    padding: '15px',
+                    marginBottom: '20px'
+                  }}>
                     <h4>📄 Strategy Profile</h4>
                     <p><strong>{`${details.strategy_title}${details.strategy_id ? ` #${details.strategy_id}` : ''}`}</strong></p>
                     <p>{details.strategy_description}</p>
                   </div>
 
-                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px' }}>
+                  <div style={{
+                    border: '1px solid #ccc',
+                    borderRadius: '6px',
+                    padding: '15px'
+                  }}>
                     <h4>📦 Purchase Profile</h4>
                     <p>{details.purchase_profile}</p>
                   </div>
@@ -131,6 +149,3 @@ export const SupplierStrategyTest = () => {
     </div>
   )
 }
-
-
-
