@@ -26,6 +26,7 @@ export const SupplierStrategyTest = () => {
   useEffect(() => {
     axios.get('http://localhost:8080/api/supplierss')
       .then(res => {
+        console.log('✅ Lista de proveedores cargada:', res.data)
         setSuppliers(res.data)
         setFilteredSuppliers(res.data)
         setLoading(false)
@@ -54,7 +55,7 @@ export const SupplierStrategyTest = () => {
 
     axios.get(`http://localhost:8080/api/supplier_strategy_details?vendor=${supplier.vendor}`)
       .then(res => {
-        console.log("🔍 Detalles recibidos:", res.data)
+        console.log("📦 Detalles recibidos del backend:", res.data)
         setDetails(res.data)
         setLoadingDetails(false)
       })
@@ -78,31 +79,16 @@ export const SupplierStrategyTest = () => {
             placeholder="Search by vendor or name..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{
-              padding: '8px',
-              marginBottom: '10px',
-              width: '100%',
-              border: '1px solid #ccc',
-              borderRadius: '4px'
-            }}
+            style={{ padding: '8px', marginBottom: '10px', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
           />
 
           {!selectedSupplier && filteredSuppliers.length > 0 && (
-            <div style={{
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              maxHeight: '300px',
-              overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto'
-            }}>
+            <div style={{ border: '1px solid #ccc', borderRadius: '4px', maxHeight: '300px', overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto' }}>
               {filteredSuppliers.map((s, i) => (
                 <div
                   key={i}
                   onClick={() => handleSelect(s)}
-                  style={{
-                    padding: '8px',
-                    borderBottom: '1px solid #eee',
-                    cursor: 'pointer'
-                  }}
+                  style={{ padding: '8px', borderBottom: '1px solid #eee', cursor: 'pointer' }}
                 >
                   {`${s.vendor} ${s.name}`}
                 </div>
