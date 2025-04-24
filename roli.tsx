@@ -19,9 +19,8 @@ export const SupplierProfile = () => {
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierOption | null>(null)
   const [details, setDetails] = useState<SupplierDetails | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-  const [query, setQuery] = useState('')
   const [loadingDetails, setLoadingDetails] = useState(false)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/supplierss')
@@ -32,7 +31,6 @@ export const SupplierProfile = () => {
       })
       .catch(err => {
         console.error('❌ Error loading suppliers:', err)
-        setError(true)
         setLoading(false)
       })
   }, [])
@@ -67,30 +65,37 @@ export const SupplierProfile = () => {
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h2>Supplier for the Purchase Order</h2>
 
-      {loading && <p>Loading suppliers...</p>}
-      {error && <p style={{ color: 'red' }}>Error loading suppliers</p>}
-
-      {!loading && !error && !loadingDetails && (
+      {!loadingDetails && !selectedSupplier && (
         <input
           type="text"
           placeholder="Search by vendor or name..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          style={{
-            padding: '8px',
-            marginBottom: '10px',
-            width: '100%',
-            border: '1px solid #ccc',
-            borderRadius: '4px'
-          }}
+          style={{ padding: '8px', marginBottom: '10px', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
         />
       )}
 
       {loadingDetails && <p>Loading supplier profile...</p>}
 
+      {!selectedSupplier && filteredSuppliers.length > 0 && !loadingDetails && (
+        <div style={{ border: '1px solid #ccc', borderRadius: '4px', maxHeight: '300px', overflowY: 'auto' }}>
+          {filteredSuppliers.map((s, i) => (
+            <div
+              key={i}
+              onClick={() => handleSelect(s)}
+              style={{ padding: '8px', borderBottom: '1px solid #eee', cursor: 'pointer' }}
+            >
+              {`${s.vendor} ${s.name}`}
+            </div>
+          ))}
+        </div>
+      )}
+
       {selectedSupplier && details && !loadingDetails && (
         <div style={{ marginTop: '20px' }}>
-          <h3 style={{ marginBottom: '10px' }}>{selectedSupplier.name}</h3>
+          <h3 style={{ marginBottom: '10px' }}>
+            {selectedSupplier.name}
+          </h3>
 
           <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px' }}>
             <h4>📄 Strategy Profile</h4>
@@ -106,6 +111,6 @@ export const SupplierProfile = () => {
       )}
     </div>
   )
-} 
+}
 
 
