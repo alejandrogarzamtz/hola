@@ -57,6 +57,9 @@ export const SupplierStrategyTest = () => {
       .then(res => {
         console.log("📦 Detalles recibidos del backend:", res.data)
         setDetails(res.data)
+        setTimeout(() => {
+          console.log("🪪 Strategy ID directo:", res.data.strategy_id)
+        }, 200)
         setLoadingDetails(false)
       })
       .catch(err => {
@@ -64,6 +67,8 @@ export const SupplierStrategyTest = () => {
         setLoadingDetails(false)
       })
   }
+
+  console.log("📋 Render detalles:", details)
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
