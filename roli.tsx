@@ -54,7 +54,6 @@ export const SupplierStrategyTest = () => {
 
     axios.get(`http://localhost:8080/api/supplier_strategy_details?vendor=${supplier.vendor}`)
       .then(res => {
-        console.log("🔍 Detalles recibidos desde backend:", res.data)
         setDetails(res.data)
         setLoadingDetails(false)
       })
@@ -78,16 +77,31 @@ export const SupplierStrategyTest = () => {
             placeholder="Search by vendor or name..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ padding: '8px', marginBottom: '10px', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
+            style={{
+              padding: '8px',
+              marginBottom: '10px',
+              width: '100%',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
           />
 
           {!selectedSupplier && filteredSuppliers.length > 0 && (
-            <div style={{ border: '1px solid #ccc', borderRadius: '4px', maxHeight: '300px', overflowY: 'scroll' }}>
+            <div style={{
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              maxHeight: '300px',
+              overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto'
+            }}>
               {filteredSuppliers.map((s, i) => (
                 <div
                   key={i}
                   onClick={() => handleSelect(s)}
-                  style={{ padding: '8px', borderBottom: '1px solid #eee', cursor: 'pointer' }}
+                  style={{
+                    padding: '8px',
+                    borderBottom: '1px solid #eee',
+                    cursor: 'pointer'
+                  }}
                 >
                   {`${s.vendor} ${s.name}`}
                 </div>
@@ -95,24 +109,33 @@ export const SupplierStrategyTest = () => {
             </div>
           )}
 
-          {selectedSupplier && (
+          {selectedSupplier && details && (
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ marginBottom: '10px' }}>
-                {selectedSupplier.name}{details?.strategy_id && ` #${details.strategy_id}`}
+                {selectedSupplier.name}
+                {details.strategy_id && ` #${details.strategy_id}`}
               </h3>
 
               {loadingDetails && <p>Loading supplier profile...</p>}
 
-              {!loadingDetails && details && (
+              {!loadingDetails && (
                 <>
-                  {console.log("✅ Renderizando detalles:", details)}
-                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px' }}>
+                  <div style={{
+                    border: '1px solid #ccc',
+                    borderRadius: '6px',
+                    padding: '15px',
+                    marginBottom: '20px'
+                  }}>
                     <h4>📄 Strategy Profile</h4>
-                    <p><strong>{`${details.strategy_title}${details.strategy_id ? ` #${details.strategy_id.toString()}` : ''}`}</strong></p>
+                    <p><strong>{`${details.strategy_title}${details.strategy_id ? ` #${details.strategy_id}` : ''}`}</strong></p>
                     <p>{details.strategy_description}</p>
                   </div>
 
-                  <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px' }}>
+                  <div style={{
+                    border: '1px solid #ccc',
+                    borderRadius: '6px',
+                    padding: '15px'
+                  }}>
                     <h4>📦 Purchase Profile</h4>
                     <p>{details.purchase_profile}</p>
                   </div>
@@ -125,4 +148,5 @@ export const SupplierStrategyTest = () => {
     </div>
   )
 }
+
 
