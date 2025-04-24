@@ -1,5 +1,3 @@
-strategy_id = next(str(r[5]).strip() for r in rows if r[5], "N/A")
-
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
@@ -80,16 +78,31 @@ export const SupplierStrategyTest = () => {
             placeholder="Search by vendor or name..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ padding: '8px', marginBottom: '10px', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
+            style={{
+              padding: '8px',
+              marginBottom: '10px',
+              width: '100%',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
           />
 
           {!selectedSupplier && filteredSuppliers.length > 0 && (
-            <div style={{ border: '1px solid #ccc', borderRadius: '4px', maxHeight: '300px', overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto' }}>
+            <div style={{
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              maxHeight: '300px',
+              overflowY: filteredSuppliers.length > 6 ? 'scroll' : 'auto'
+            }}>
               {filteredSuppliers.map((s, i) => (
                 <div
                   key={i}
                   onClick={() => handleSelect(s)}
-                  style={{ padding: '8px', borderBottom: '1px solid #eee', cursor: 'pointer' }}
+                  style={{
+                    padding: '8px',
+                    borderBottom: '1px solid #eee',
+                    cursor: 'pointer'
+                  }}
                 >
                   {`${s.vendor} ${s.name}`}
                 </div>
@@ -110,7 +123,7 @@ export const SupplierStrategyTest = () => {
                 <>
                   <div style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '15px', marginBottom: '20px' }}>
                     <h4>📄 Strategy Profile</h4>
-                    <p><strong>{details.strategy_title}</strong></p>
+                    <p><strong>{`${details.strategy_title}${details.strategy_id ? ` #${details.strategy_id}` : ''}`}</strong></p>
                     <p>{details.strategy_description}</p>
                   </div>
 
@@ -128,19 +141,5 @@ export const SupplierStrategyTest = () => {
   )
 }
 
-
-
-strategy_title = next((r[3] for r in rows if r[3]), "N/A")
-strategy_desc = next((str(r[4]).strip() for r in rows if r[4] and str(r[4]).strip()), "N/A")
-strategy_id = next((str(r[5]).strip() for r in rows if r[5]), "N/A")
-short_texts = [r[2].strip() for r in rows if r[2]]
-purchase_profile = "; ".join(short_texts) if short_texts else "N/A"
-
-return jsonify({
-    "strategy_title": strategy_title,
-    "strategy_description": strategy_desc,
-    "purchase_profile": purchase_profile,
-    "strategy_id": strategy_id
-})
 
 
