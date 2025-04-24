@@ -1,3 +1,5 @@
+strategy_id = next(str(r[5]).strip() for r in rows if r[5], "N/A")
+
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
