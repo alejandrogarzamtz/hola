@@ -7,10 +7,10 @@ interface SupplierOption {
 }
 
 interface SupplierDetails {
-  strategy_id?: string
   strategy_title: string
   strategy_description: string
   purchase_profile: string
+  strategy_id: string
 }
 
 export const SupplierStrategyTest = () => {
@@ -31,7 +31,7 @@ export const SupplierStrategyTest = () => {
         setLoading(false)
       })
       .catch(err => {
-        console.error('Error loading suppliers:', err)
+        console.error('❌ Error loading suppliers:', err)
         setError(true)
         setLoading(false)
       })
@@ -51,13 +51,15 @@ export const SupplierStrategyTest = () => {
     setQuery('')
     setLoadingDetails(true)
     setDetails(null)
+
     axios.get(`http://localhost:8080/api/supplier_strategy_details?vendor=${supplier.vendor}`)
       .then(res => {
+        console.log("🔍 Detalles recibidos:", res.data)
         setDetails(res.data)
         setLoadingDetails(false)
       })
       .catch(err => {
-        console.error('Error fetching details:', err)
+        console.error('❌ Error fetching details:', err)
         setLoadingDetails(false)
       })
   }
@@ -97,11 +99,7 @@ export const SupplierStrategyTest = () => {
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ marginBottom: '10px' }}>
                 {selectedSupplier.name}
-                {details?.strategy_id && (
-                  <span style={{ color: '#666', marginLeft: '10px' }}>
-                    ID: <strong>{details.strategy_id}</strong>
-                  </span>
-                )}
+                {details?.strategy_id && ` #${details.strategy_id}`}
               </h3>
 
               {loadingDetails && <p>Loading supplier profile...</p>}
@@ -127,3 +125,4 @@ export const SupplierStrategyTest = () => {
     </div>
   )
 }
+
